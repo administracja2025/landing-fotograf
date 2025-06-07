@@ -1,1254 +1,1037 @@
 <!DOCTYPE html>
 <html lang="pl">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vision Capture | Profesjonalna Fotografia</title>
-    <style>
-        .lightbox {
-            display: none;
-            position: fixed;
-            z-index: 999;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.9);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            opacity: 0;
-            visibility: hidden;
-            transition: opacity 0.3s, visibility 0.3s;
-        }
-
-        .lightbox.active {
-            opacity: 1;
-            visibility: visible;
-        }
-
-        .lightbox img {
-            max-width: 90%;
-            max-height: 90vh;
-            transform: scale(0.95);
-            transition: transform 0.3s;
-        }
-
-        .lightbox.active img {
-            transform: scale(1);
-        }
-
-        .lightbox-close {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            color: white;
-            font-size: 30px;
-            cursor: pointer;
-        }
-
-        .gallery-item {
-            transform-style: preserve-3d;
-            perspective: 1000px;
-            transition: transform 0.3s;
-        }
-
-        .gallery-item:hover {
-            transform: translateZ(20px);
-        }
-
-        .service-card {
-            transform-style: preserve-3d;
-            transition: transform 0.3s;
-        }
-
-        .service-card:hover {
-            transform: translateZ(30px) rotateX(5deg);
-        }
-
-        .hero-content {
-            transform-style: preserve-3d;
-            perspective: 2000px;
-        }
-
-        .hero-text {
-            transform: translateZ(50px);
-        }
-
-    </style>
-    <script src="https://cdn.tailwindcss.com/3.4.16"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        primary: '#3b82f6',
-                        secondary: '#10b981'
-                    },
-                    borderRadius: {
-                        'none': '0px',
-                        'sm': '4px',
-                        DEFAULT: '8px',
-                        'md': '12px',
-                        'lg': '16px',
-                        'xl': '20px',
-                        '2xl': '24px',
-                        '3xl': '32px',
-                        'full': '9999px',
-                        'button': '8px'
-                    }
-                }
-            }
-        }
-
-    </script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.6.0/remixicon.min.css">
-    <style>
-        :where([class^="ri-"])::before {
-            content: "\f3c2";
-        }
-
-        body {
-            font-family: 'Montserrat', sans-serif;
-            overflow-x: hidden;
-        }
-
-        .custom-cursor {
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            background-color: rgba(59, 130, 246, 0.5);
-            position: fixed;
-            pointer-events: none;
-            z-index: 9999;
-            transform: translate(-50%, -50%);
-            transition: width 0.3s, height 0.3s, background-color 0.3s;
-            mix-blend-mode: difference;
-        }
-
-        .cursor-grow {
-            width: 50px;
-            height: 50px;
-            background-color: rgba(59, 130, 246, 0.3);
-        }
-
-        #particles-js {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            top: 0;
-            left: 0;
-            z-index: 1;
-        }
-
-        .smoke-container {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-            z-index: 2;
-            pointer-events: none;
-        }
-
-        .smoke {
-            position: absolute;
-            width: 300px;
-            height: 300px;
-            background: radial-gradient(circle, rgba(255, 255, 255, 0.8) 0%, rgba(255, 255, 255, 0) 70%);
-            border-radius: 50%;
-            filter: blur(40px);
-            opacity: 0.4;
-            transform: scale(0);
-            animation: smokeAnimation 8s infinite ease-out;
-        }
-
-        @keyframes smokeAnimation {
-            0% {
-                transform: scale(0);
-                opacity: 0;
-            }
-
-            20% {
-                opacity: 0.4;
-            }
-
-            80% {
-                opacity: 0.2;
-            }
-
-            100% {
-                transform: scale(3);
-                opacity: 0;
-            }
-        }
-
-        .nav-link {
-            position: relative;
-            overflow: hidden;
-        }
-
-        .nav-link::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 0;
-            height: 2px;
-            background-color: #3b82f6;
-            transition: width 0.3s ease;
-        }
-
-        .nav-link:hover::after {
-            width: 100%;
-        }
-
-        .gallery-item {
-            overflow: hidden;
-            position: relative;
-        }
-
-        .gallery-item img {
-            transition: transform 0.5s ease;
-        }
-
-        .gallery-item:hover img {
-            transform: scale(1.05);
-        }
-
-        .gallery-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            opacity: 0;
-            transition: opacity 0.3s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-        }
-
-        .gallery-item:hover .gallery-overlay {
-            opacity: 1;
-        }
-
-        .service-card {
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-
-        .service-card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-        }
-
-        .service-icon {
-            transition: transform 0.3s ease;
-        }
-
-        .service-card:hover .service-icon {
-            transform: scale(1.2);
-        }
-
-        .input-field {
-            transition: border-color 0.3s ease, box-shadow 0.3s ease;
-        }
-
-        .input-field:focus {
-            border-color: #3b82f6;
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
-        }
-
-        .social-icon {
-            transition: transform 0.3s ease, color 0.3s ease;
-        }
-
-        .social-icon:hover {
-            transform: translateY(-5px);
-            color: #3b82f6;
-        }
-
-        .count-up {
-            display: inline-block;
-        }
-
-        .filter-btn {
-            transition: background-color 0.3s ease, color 0.3s ease;
-        }
-
-        .filter-btn.active {
-            background-color: #3b82f6;
-            color: white;
-        }
-
-        .back-to-top {
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            z-index: 99;
-            opacity: 0;
-            visibility: hidden;
-            transition: opacity 0.3s ease, visibility 0.3s ease, transform 0.3s ease;
-        }
-
-        .back-to-top.visible {
-            opacity: 1;
-            visibility: visible;
-        }
-
-        .back-to-top:hover {
-            transform: translateY(-5px);
-        }
-
-        input[type="number"]::-webkit-inner-spin-button,
-        input[type="number"]::-webkit-outer-spin-button {
-            -webkit-appearance: none;
-            margin: 0;
-        }
-
-        input[type="number"] {
-            -moz-appearance: textfield;
-        }
-
-        .custom-checkbox {
-            position: relative;
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            background-color: white;
-            border: 2px solid #e5e7eb;
-            border-radius: 4px;
-            transition: all 0.3s ease;
-        }
-
-        .custom-checkbox.checked {
-            background-color: #3b82f6;
-            border-color: #3b82f6;
-        }
-
-        .custom-checkbox.checked::after {
-            content: '';
-            position: absolute;
-            top: 2px;
-            left: 6px;
-            width: 6px;
-            height: 10px;
-            border: solid white;
-            border-width: 0 2px 2px 0;
-            transform: rotate(45deg);
-        }
-
-        .reveal {
-            opacity: 0;
-            transform: translateY(30px);
-            transition: opacity 0.8s ease, transform 0.8s ease;
-        }
-
-        .reveal.active {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        .hero-text {
-            opacity: 0;
-            transform: translateY(30px);
-            animation: fadeInUp 1s forwards 0.5s;
-        }
-
-        @keyframes fadeInUp {
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .pulse {
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0% {
-                transform: scale(1);
-                box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7);
-            }
-
-            70% {
-                transform: scale(1.05);
-                box-shadow: 0 0 0 10px rgba(59, 130, 246, 0);
-            }
-
-            100% {
-                transform: scale(1);
-                box-shadow: 0 0 0 0 rgba(59, 130, 246, 0);
-            }
-        }
-
-        .custom-switch {
-            position: relative;
-            display: inline-block;
-            width: 50px;
-            height: 24px;
-        }
-
-        .custom-switch input {
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
-
-        .slider {
-            position: absolute;
-            cursor: pointer;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: #ccc;
-            transition: .4s;
-            border-radius: 34px;
-        }
-
-        .slider:before {
-            position: absolute;
-            content: "";
-            height: 16px;
-            width: 16px;
-            left: 4px;
-            bottom: 4px;
-            background-color: white;
-            transition: .4s;
-            border-radius: 50%;
-        }
-
-        input:checked+.slider {
-            background-color: #3b82f6;
-        }
-
-        input:focus+.slider {
-            box-shadow: 0 0 1px #3b82f6;
-        }
-
-        input:checked+.slider:before {
-            transform: translateX(26px);
-        }
-
-        .parallax {
-            background-attachment: fixed;
-            background-position: center;
-            background-repeat: no-repeat;
-            background-size: cover;
-        }
-
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fotografia Artystyczna</title>
+<script src="https://cdn.tailwindcss.com/3.4.16"></script>
+<script>tailwind.config={theme:{extend:{colors:{primary:'#1a1a1a',secondary:'#4a4a4a'},borderRadius:{'none':'0px','sm':'4px',DEFAULT:'8px','md':'12px','lg':'16px','xl':'20px','2xl':'24px','3xl':'32px','full':'9999px','button':'8px'}}}}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.6.0/remixicon.min.css">
+<style>
+:where([class^="ri-"])::before { content: "\f3c2"; }
+body {
+font-family: 'Comfortaa', sans-serif;
+font-size: 12px;
+}
+.hero-section {
+background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('https://readdy.ai/api/search-image?query=professional%20photography%20scene%20with%20a%20camera%20and%20natural%20light%20coming%20through%20windows%2C%20high-end%20photography%20studio%20with%20modern%20equipment%2C%20artistic%20composition%2C%20cinematic%20lighting%2C%20high%20resolution%2C%20photorealistic%2C%20soft%20colors%2C%20dreamy%20atmosphere&width=1920&height=1080&seq=hero1&orientation=landscape');
+background-size: cover;
+background-position: center;
+background-attachment: fixed;
+}
+.masonry-grid {
+display: grid;
+grid-template-columns: repeat(3, 1fr);
+grid-gap: 1rem;
+}
+.masonry-grid img {
+width: 100%;
+height: auto;
+transition: transform 0.3s ease;
+}
+.masonry-grid img:hover {
+transform: scale(1.02);
+}
+.service-card:hover .service-details {
+opacity: 1;
+}
+.modal {
+display: none;
+position: fixed;
+z-index: 50;
+left: 0;
+top: 0;
+width: 100%;
+height: 100%;
+overflow: auto;
+background-color: rgba(0, 0, 0, 0.9);
+}
+.modal-content {
+margin: auto;
+display: block;
+max-width: 90%;
+max-height: 90%;
+}
+.close {
+position: absolute;
+top: 15px;
+right: 35px;
+color: #f1f1f1;
+font-size: 40px;
+font-weight: bold;
+transition: 0.3s;
+}
+.close:hover,
+.close:focus {
+color: #bbb;
+text-decoration: none;
+cursor: pointer;
+}
+.nav-link {
+position: relative;
+}
+.nav-link::after {
+content: '';
+position: absolute;
+width: 0;
+height: 2px;
+bottom: -4px;
+left: 0;
+background-color: white;
+transition: width 0.3s ease;
+}
+.nav-link:hover::after {
+width: 100%;
+}
+.custom-checkbox {
+appearance: none;
+-webkit-appearance: none;
+width: 20px;
+height: 20px;
+border: 2px solid #1a1a1a;
+border-radius: 4px;
+outline: none;
+cursor: pointer;
+position: relative;
+}
+.custom-checkbox:checked {
+background-color: #1a1a1a;
+}
+.custom-checkbox:checked::after {
+content: '\2713';
+position: absolute;
+color: white;
+font-size: 14px;
+top: 50%;
+left: 50%;
+transform: translate(-50%, -50%);
+}
+@media (max-width: 1024px) {
+.masonry-grid {
+grid-template-columns: repeat(2, 1fr);
+}
+}
+@media (max-width: 640px) {
+.masonry-grid {
+grid-template-columns: 1fr;
+}
+}
+</style>
 </head>
-
 <body class="bg-white">
-    <div class="custom-cursor"></div>
-    <div id="particles-js"></div>
-    <!-- Hero Section -->
-    <section class="relative min-h-screen flex items-center justify-center overflow-hidden">
-        <div class="lightbox">
-            <span class="lightbox-close">&times;</span>
-            <img src="" alt="Lightbox Image">
-        </div>
-        <div class="smoke-container">
-            <div class="smoke" style="top: 10%; left: 10%;"></div>
-            <div class="smoke" style="top: 30%; left: 70%; animation-delay: 2s;"></div>
-            <div class="smoke" style="top: 70%; left: 30%; animation-delay: 4s;"></div>
-            <div class="smoke" style="top: 80%; left: 80%; animation-delay: 6s;"></div>
-        </div>
-        <div style="background-image: url('https://readdy.ai/api/search-image?query=professional%20photographer%20in%20a%20modern%20studio%20with%20high-end%20equipment%2C%20dramatic%20lighting%2C%20cinematic%20atmosphere%2C%20artistic%20photography%20setup%2C%20smoke%20effects%2C%20particles%20in%20the%20air%2C%20high-quality%20DSLR%20camera%2C%20stylish%20interior%20design%2C%20creative%20workspace&width=1920&height=1080&seq=1&orientation=landscape'); background-size: cover; background-position: center; position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; filter: brightness(0.7);"></div>
-        <header class="absolute top-0 left-0 w-full z-10 px-8 py-6">
-            <div class="container mx-auto flex justify-between items-center">
-                <a href="#" class="text-white text-3xl font-['Pacifico'] tracking-wider">logo</a>
-                <nav class="hidden md:flex space-x-8">
-                    <a href="#home" class="nav-link text-white font-medium hover:text-primary transition-colors">Home</a>
-                    <a href="#portfolio" class="nav-link text-white font-medium hover:text-primary transition-colors">Portfolio</a>
-                    <a href="#o-mnie" class="nav-link text-white font-medium hover:text-primary transition-colors">O mnie</a>
-                    <a href="#uslugi" class="nav-link text-white font-medium hover:text-primary transition-colors">Usługi</a>
-                    <a href="#kontakt" class="nav-link text-white font-medium hover:text-primary transition-colors">Kontakt</a>
-                </nav>
-                <button class="md:hidden text-white w-10 h-10 flex items-center justify-center">
-                    <i class="ri-menu-line ri-2x"></i>
-                </button>
-            </div>
-        </header>
-        <div class="container mx-auto px-8 z-10 text-center">
-            <h1 class="hero-text text-5xl md:text-7xl font-bold text-white mb-6">Uchwycamy Chwile, <br>Tworzymy Wspomnienia</h1>
-            <p class="hero-text text-xl md:text-2xl text-white mb-10 max-w-2xl mx-auto" style="animation-delay: 0.7s;">Nagradzane usługi fotograficzne: śluby, portrety, wydarzenia i projekty komercyjne.</p>
-            <button class="hero-text pulse bg-primary hover:bg-blue-600 text-white font-semibold py-3 px-8 !rounded-button shadow-lg transition-all duration-300" style="animation-delay: 0.9s;">
-                Umów Sesję
-            </button>
-        </div>
-        <div class="absolute bottom-10 left-1/2 transform -translate-x-1/2 z-10">
-            <a href="#portfolio" class="text-white animate-bounce">
-                <div class="w-10 h-10 flex items-center justify-center">
-                    <i class="ri-arrow-down-line ri-2x"></i>
-                </div>
-            </a>
-        </div>
-    </section>
-    <!-- Portfolio Gallery -->
-    <section id="portfolio" class="py-20 bg-gray-50">
-        <div class="container mx-auto px-8">
-            <h2 class="text-4xl font-bold text-center mb-4 reveal">Portfolio</h2>
-            <p class="text-gray-600 text-center max-w-2xl mx-auto mb-12 reveal">Odkryj moją różnorodną kolekcję prac fotograficznych obejmującą różne style i tematy.</p>
-            <div class="flex flex-wrap justify-center gap-4 mb-12 reveal">
-                <button class="filter-btn active bg-white hover:bg-gray-100 text-gray-800 font-medium py-2 px-6 !rounded-button border border-gray-200 shadow-sm transition-all">Wszystkie</button>
-                <button class="filter-btn bg-white hover:bg-gray-100 text-gray-800 font-medium py-2 px-6 !rounded-button border border-gray-200 shadow-sm transition-all">Śluby</button>
-                <button class="filter-btn bg-white hover:bg-gray-100 text-gray-800 font-medium py-2 px-6 !rounded-button border border-gray-200 shadow-sm transition-all">Portrety</button>
-                <button class="filter-btn bg-white hover:bg-gray-100 text-gray-800 font-medium py-2 px-6 !rounded-button border border-gray-200 shadow-sm transition-all">Natura</button>
-                <button class="filter-btn bg-white hover:bg-gray-100 text-gray-800 font-medium py-2 px-6 !rounded-button border border-gray-200 shadow-sm transition-all">Komercyjne</button>
-            </div>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 reveal">
-                <div class="gallery-item rounded-lg overflow-hidden shadow-lg">
-                    <img src="https://readdy.ai/api/search-image?query=elegant%20wedding%20photography%20with%20bride%20and%20groom%20in%20a%20beautiful%20garden%20setting%2C%20soft%20natural%20lighting%2C%20romantic%20atmosphere%2C%20professional%20composition%2C%20artistic%20wedding%20photography%2C%20high-quality%20image%20with%20soft%20bokeh%20background%2C%20cinematic%20style&width=600&height=800&seq=2&orientation=portrait" alt="Wedding Photography" class="w-full h-80 object-cover object-top">
-                    <div class="gallery-overlay">
-                        <div class="text-center">
-                            <h3 class="text-xl font-bold">Eleganckie wesela</h3>
-                            <p class="text-sm mt-2">Uwiecznij swój wyjątkowy dzień</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="gallery-item rounded-lg overflow-hidden shadow-lg">
-                    <img src="https://readdy.ai/api/search-image?query=professional%20portrait%20photography%20of%20a%20stylish%20young%20woman%20in%20urban%20setting%2C%20dramatic%20lighting%2C%20artistic%20composition%2C%20high%20fashion%20look%2C%20cinematic%20color%20grading%2C%20shallow%20depth%20of%20field%2C%20high-quality%20professional%20portrait&width=600&height=800&seq=3&orientation=portrait" alt="Portrait Photography" class="w-full h-80 object-cover object-top">
-                    <div class="gallery-overlay">
-                        <div class="text-center">
-                            <h3 class="text-xl font-bold">Oszałamiające portrety</h3>
-                            <p class="text-sm mt-2">Wydobądź z siebie to, co najlepsze</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="gallery-item rounded-lg overflow-hidden shadow-lg">
-                    <img src="https://readdy.ai/api/search-image?query=breathtaking%20landscape%20photography%20of%20mountain%20range%20at%20sunset%2C%20dramatic%20sky%2C%20vibrant%20colors%2C%20professional%20nature%20photography%2C%20artistic%20composition%2C%20high-quality%20image%20with%20incredible%20detail%2C%20cinematic%20style&width=600&height=800&seq=4&orientation=portrait" alt="Nature Photography" class="w-full h-80 object-cover object-top">
-                    <div class="gallery-overlay">
-                        <div class="text-center">
-                            <h3 class="text-xl font-bold">Zapierające dech w piersiach krajobrazy</h3>
-                            <p class="text-sm mt-2">Natura w najczystszej postaci</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="gallery-item rounded-lg overflow-hidden shadow-lg">
-                    <img src="https://readdy.ai/api/search-image?query=professional%20product%20photography%20of%20luxury%20watch%20on%20dark%20background%2C%20dramatic%20lighting%2C%20high-end%20commercial%20photography%2C%20artistic%20composition%2C%20studio%20lighting%20setup%2C%20advertising%20quality%20image%2C%20high%20detail&width=600&height=800&seq=5&orientation=portrait" alt="Commercial Photography" class="w-full h-80 object-cover object-top">
-                    <div class="gallery-overlay">
-                        <div class="text-center">
-                            <h3 class="text-xl font-bold">Doskonałość komercyjna</h3>
-                            <p class="text-sm mt-2">Prezentacja produktów z najlepszej strony</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="gallery-item rounded-lg overflow-hidden shadow-lg">
-                    <img src="https://readdy.ai/api/search-image?query=vibrant%20event%20photography%20of%20corporate%20gala%2C%20professional%20event%20coverage%2C%20dynamic%20lighting%2C%20candid%20moments%2C%20high-quality%20image%20with%20perfect%20exposure%2C%20artistic%20composition%2C%20storytelling%20through%20photography&width=600&height=800&seq=6&orientation=portrait" alt="Event Photography" class="w-full h-80 object-cover object-top">
-                    <div class="gallery-overlay">
-                        <div class="text-center">
-                            <h3 class="text-xl font-bold">Relacja z wydarzenia</h3>
-                            <p class="text-sm mt-2">Dokumentowanie wyjątkowych chwil</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="gallery-item rounded-lg overflow-hidden shadow-lg">
-                    <img src="https://readdy.ai/api/search-image?query=artistic%20black%20and%20white%20portrait%20photography%20with%20dramatic%20lighting%2C%20emotional%20expression%2C%20professional%20fine%20art%20photography%2C%20artistic%20composition%2C%20high%20contrast%2C%20studio%20lighting%2C%20timeless%20quality&width=600&height=800&seq=7&orientation=portrait" alt="Black and White Photography" class="w-full h-80 object-cover object-top">
-                    <div class="gallery-overlay">
-                        <div class="text-center">
-                            <h3 class="text-xl font-bold">Sztuka czarno-biała</h3>
-                            <p class="text-sm mt-2">Uchwyć to co najlepsze</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="text-center mt-12 reveal">
-                <button class="bg-white hover:bg-gray-100 text-gray-800 font-medium py-3 px-8 !rounded-button border border-gray-200 shadow-sm transition-all">
-                    View Full Gallery
-                </button>
-            </div>
-        </div>
-    </section>
-    <!-- About Section -->
-    <section id="about" class="py-20 relative overflow-hidden">
-        <div class="smoke-container">
-            <div class="smoke" style="top: 20%; left: 20%; animation-delay: 1s;"></div>
-            <div class="smoke" style="top: 60%; left: 80%; animation-delay: 3s;"></div>
-        </div>
-        <div class="container mx-auto px-8">
-            <div class="flex flex-col lg:flex-row items-center gap-12">
-                <div class="lg:w-1/2 reveal">
-                    <div class="relative">
-                        <div class="absolute -top-4 -left-4 w-40 h-40 bg-primary opacity-10 rounded-lg"></div>
-                        <img src="https://readdy.ai/api/search-image?query=professional%20photographer%20portrait%2C%20creative%20artist%20with%20camera%2C%20stylish%20individual%20in%20modern%20studio%2C%20artistic%20lighting%2C%20confident%20pose%2C%20high-quality%20professional%20headshot%2C%20cinematic%20style&width=600&height=700&seq=8&orientation=portrait" alt="Photographer" class="w-full max-w-md rounded-lg shadow-xl relative z-10">
-                    </div>
-                </div>
-                <div class="lg:w-1/2 reveal">
-                    <h2 class="text-4xl font-bold mb-6">O Mnie</h2>
-                    <p class="text-gray-700 mb-6">Posiadając ponad 15-letnie doświadczenie w profesjonalnej fotografii, miałem zaszczyt pracować z klientami z całego świata, uwieczniając ich najcenniejsze chwile i wcielając w życie ich kreatywne wizje.</p>
-                    <p class="text-gray-700 mb-8">Moje podejście łączy wiedzę techniczną z artystycznym okiem, co pozwala mi tworzyć obrazy, które nie tylko dokumentują rzeczywistość, ale także przekazują emocje i opowiadają fascynujące historie. Niezależnie od tego, czy fotografuję ślub, sesję portretową czy projekt komercyjny, moim celem jest zawsze przekroczenie oczekiwań i dostarczenie zdjęć, które będą cenione przez pokolenia.</p>
-                    <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mb-8">
-                        <div class="text-center">
-                            <div class="text-4xl font-bold text-primary count-up" data-target="15">0</div>
-                            <p class="text-gray-600 mt-2">Lata Doświadczenia</p>
-                        </div>
-                        <div class="text-center">
-                            <div class="text-4xl font-bold text-primary count-up" data-target="520">0</div>
-                            <p class="text-gray-600 mt-2">Zadowoleni klienci</p>
-                        </div>
-                        <div class="text-center">
-                            <div class="text-4xl font-bold text-primary count-up" data-target="210">0</div>
-                            <p class="text-gray-600 mt-2">Zdjęcia ślubne</p>
-                        </div>
-                        <div class="text-center">
-                            <div class="text-4xl font-bold text-primary count-up" data-target="12">0</div>
-                            <p class="text-gray-600 mt-2">Zdobyte nagrody</p>
-                        </div>
-                    </div>
-                    <button class="bg-primary hover:bg-blue-600 text-white font-semibold py-3 px-8 !rounded-button shadow-lg transition-all duration-300">
-                        Pobierz Portfolio
-                    </button>
-                </div>
-            </div>
-        </div>
-    </section>
-    <!-- Parallax Section -->
-   <section class="parallax py-24 relative" style="background-image: url('https://readdy.ai/api/search-image?query=professional%20camera%20equipment%20on%20dark%20background%2C%20high-end%20photography%20gear%2C%20artistic%20arrangement%20of%20lenses%20and%20camera%20bodies%2C%20dramatic%20lighting%2C%20cinematic%20atmosphere%2C%20premium%20photography%20equipment&width=1920&height=1080&seq=9&orientation=landscape');">
-<div class="absolute inset-0 bg-black bg-opacity-60"></div>
-<div class="container mx-auto px-8 relative z-10 text-center">
-<h2 class="text-4xl md:text-5xl font-bold text-white mb-6 reveal">Pasja  & Perfekcja</h2>
-<p class="text-xl text-white max-w-3xl mx-auto mb-10 reveal">Każde ujęcie to okazja do stworzenia czegoś niezwykłego. Nie robię tylko zdjęć - tworzę wizualne historie, które przetrwają próbę czasu.</p>
-<button class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-3 px-8 !rounded-button shadow-lg transition-all duration-300 reveal">
-Poznaj mój proces
+<!-- Header & Navigation -->
+<header class="fixed w-full z-40 transition-all duration-300" id="navbar">
+<div class="container mx-auto px-4 py-4 flex justify-between items-center">
+<a href="#" class="text-white text-3xl font-['Pacifico']">logo</a>
+<nav class="hidden md:block">
+<ul class="flex space-x-8">
+<li><a href="#portfolio" class="text-white hover:text-gray-200 nav-link">Portfolio</a></li>
+<li><a href="#services" class="text-white hover:text-gray-200 nav-link">Usługi</a></li>
+<li><a href="#pricing" class="text-white hover:text-gray-200 nav-link">Cennik</a></li>
+<li><a href="#testimonials" class="text-white hover:text-gray-200 nav-link">Referencje</a></li>
+<li><a href="#contact" class="text-white hover:text-gray-200 nav-link">Kontakt</a></li>
+</ul>
+</nav>
+<button class="md:hidden text-white w-10 h-10 flex items-center justify-center" id="mobile-menu-button">
+<i class="ri-menu-line ri-2x"></i>
 </button>
 </div>
+<!-- Mobile Menu -->
+<div class="md:hidden bg-black bg-opacity-90 hidden absolute w-full" id="mobile-menu">
+<ul class="flex flex-col p-4">
+<li class="py-2"><a href="#portfolio" class="text-white hover:text-gray-200 block">Portfolio</a></li>
+<li class="py-2"><a href="#services" class="text-white hover:text-gray-200 block">Usługi</a></li>
+<li class="py-2"><a href="#pricing" class="text-white hover:text-gray-200 block">Cennik</a></li>
+<li class="py-2"><a href="#testimonials" class="text-white hover:text-gray-200 block">Referencje</a></li>
+<li class="py-2"><a href="#contact" class="text-white hover:text-gray-200 block">Kontakt</a></li>
+</ul>
+</div>
+</header>
+<!-- Hero Section -->
+<section class="hero-section h-screen flex items-center justify-center">
+<div class="text-center text-white px-4">
+<h1 class="text-4xl md:text-6xl font-bold mb-4">Zatrzymaj chwile na zawsze</h1>
+<p class="text-xl md:text-2xl mb-8 max-w-2xl mx-auto">Profesjonalna fotografia, która opowiada Twoją historię i zatrzymuje najpiękniejsze momenty życia</p>
+<button class="bg-white text-primary hover:bg-gray-200 px-8 py-3 rounded-button font-medium transition-colors whitespace-nowrap">Umów sesję</button>
+</div>
 </section>
-    <!-- Services Section -->
-    <section id="services" class="py-20 bg-gray-50">
-        <div class="container mx-auto px-8">
-            <h2 class="text-4xl font-bold text-center mb-4 reveal">Usługi</h2>
-            <p class="text-gray-600 text-center max-w-2xl mx-auto mb-16 reveal">Kompleksowe usługi fotograficzne dostosowane do Twoich indywidualnych potrzeb i wizji.</p>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 reveal">
-                <div class="service-card bg-white rounded-lg p-8 shadow-lg">
-                    <div class="w-16 h-16 flex items-center justify-center bg-blue-100 rounded-full mb-6 mx-auto service-icon">
-                        <i class="ri-camera-line ri-2x text-primary"></i>
-                    </div>
-                    <h3 class="text-xl font-bold text-center mb-4">Fotografia ślubna</h3>
-                    <p class="text-gray-600 text-center mb-6">Kompleksowa relacja z Waszego wyjątkowego dnia, od przygotowań po przyjęcie, z połączeniem spontanicznych chwil i artystycznych portretów.</p>
-                    <div class="text-center font-bold text-xl text-primary mb-6"> pln 2,500</div>
-                    <div class="text-center">
-                        <button class="bg-primary hover:bg-blue-600 text-white font-medium py-2 px-6 !rounded-button shadow-sm transition-all">
-                            Zamów Teraz 
-                        </button>
-                    </div>
-                </div>
-                <div class="service-card bg-white rounded-lg p-8 shadow-lg">
-                    <div class="w-16 h-16 flex items-center justify-center bg-blue-100 rounded-full mb-6 mx-auto service-icon">
-                        <i class="ri-user-smile-line ri-2x text-primary"></i>
-                    </div>
-                    <h3 class="text-xl font-bold text-center mb-4">Sesje portretowe</h3>
-                    <p class="text-gray-600 text-center mb-6">Profesjonalne portrety osób, par, rodzin lub zdjęcia korporacyjne, w studiu lub w wybranej przez Ciebie lokalizacji.</p>
-                    <div class="text-center font-bold text-xl text-primary mb-6">pln 350</div>
-                    <div class="text-center">
-                        <button class="bg-primary hover:bg-blue-600 text-white font-medium py-2 px-6 !rounded-button shadow-sm transition-all">
-                            Zamów Teraz
-                        </button>
-                    </div>
-                </div>
-                <div class="service-card bg-white rounded-lg p-8 shadow-lg">
-                    <div class="w-16 h-16 flex items-center justify-center bg-blue-100 rounded-full mb-6 mx-auto service-icon">
-                        <i class="ri-building-line ri-2x text-primary"></i>
-                    </div>
-                    <h3 class="text-xl font-bold text-center mb-4">Fotografia komercyjna</h3>
-                    <p class="text-gray-600 text-center mb-6">Wysokiej jakości zdjęcia produktów, zdjęcia nieruchomości i relacje z wydarzeń korporacyjnych, dzięki którym zaprezentujesz swoją firmę z najlepszej strony.</p>
-                    <div class="text-center font-bold text-xl text-primary mb-6">pln 800</div>
-                    <div class="text-center">
-                        <button class="bg-primary hover:bg-blue-600 text-white font-medium py-2 px-6 !rounded-button shadow-sm transition-all">
-                            Zamów Teraz
-                        </button>
-                    </div>
-                </div>
-                <div class="service-card bg-white rounded-lg p-8 shadow-lg">
-                    <div class="w-16 h-16 flex items-center justify-center bg-blue-100 rounded-full mb-6 mx-auto service-icon">
-                        <i class="ri-calendar-event-line ri-2x text-primary"></i>
-                    </div>
-                    <h3 class="text-xl font-bold text-center mb-4">Relacja z wydarzenia</h3>
-                    <p class="text-gray-600 text-center mb-6">Profesjonalne zdjęcia z wydarzeń korporacyjnych, imprez, konferencji i specjalnych okazji, uwieczniające najważniejsze momenty i atmosferę.</p>
-                    <div class="text-center font-bold text-xl text-primary mb-6">pln 600</div>
-                    <div class="text-center">
-                        <button class="bg-primary hover:bg-blue-600 text-white font-medium py-2 px-6 !rounded-button shadow-sm transition-all">
-                            Zamów Teraz
-                        </button>
-                    </div>
-                </div>
-                <div class="service-card bg-white rounded-lg p-8 shadow-lg">
-                    <div class="w-16 h-16 flex items-center justify-center bg-blue-100 rounded-full mb-6 mx-auto service-icon">
-                        <i class="ri-film-line ri-2x text-primary"></i>
-                    </div>
-                    <h3 class="text-xl font-bold text-center mb-4">Fotografia artystyczna</h3>
-                    <p class="text-gray-600 text-center mb-6">Artystyczne sesje fotograficzne, których efektem są odbitki o jakości galeryjnej, idealne do dekoracji wnętrz lub na wartościowy prezent.</p>
-                    <div class="text-center font-bold text-xl text-primary mb-6">pln 450</div>
-                    <div class="text-center">
-                        <button class="bg-primary hover:bg-blue-600 text-white font-medium py-2 px-6 !rounded-button shadow-sm transition-all">
-                            Zamów Teraz
-                        </button>
-                    </div>
-                </div>
-                <div class="service-card bg-white rounded-lg p-8 shadow-lg">
-                    <div class="w-16 h-16 flex items-center justify-center bg-blue-100 rounded-full mb-6 mx-auto service-icon">
-                        <i class="ri-edit-2-line ri-2x text-primary"></i>
-                    </div>
-                    <h3 class="text-xl font-bold text-center mb-4">Edycja fotografii</h3>
-                    <p class="text-gray-600 text-center mb-6">Profesjonalne usługi retuszu i edycji pozwalające udoskonalić istniejące fotografie, dostępne jako oddzielna usługa.</p>
-                    <div class="text-center font-bold text-xl text-primary mb-6">pln 100</div>
-                    <div class="text-center">
-                        <button class="bg-primary hover:bg-blue-600 text-white font-medium py-2 px-6 !rounded-button shadow-sm transition-all">
-                            Zamów Teraz
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-    <!-- Testimonials -->
-    <section class="py-20">
-        <div class="container mx-auto px-8">
-            <h2 class="text-4xl font-bold text-center mb-4 reveal">Opinie klientów</h2>
-            <p class="text-gray-600 text-center max-w-2xl mx-auto mb-16 reveal">Przeczytaj, co moi klienci mówią o współpracy ze mną.</p>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 reveal">
-                <div class="bg-white rounded-lg p-8 shadow-lg">
-                    <div class="flex justify-center mb-4">
-                        <div class="flex text-yellow-400">
-                            <i class="ri-star-fill ri-lg"></i>
-                            <i class="ri-star-fill ri-lg"></i>
-                            <i class="ri-star-fill ri-lg"></i>
-                            <i class="ri-star-fill ri-lg"></i>
-                            <i class="ri-star-fill ri-lg"></i>
-                        </div>
-                    </div>
-                    <p class="text-gray-600 text-center mb-6">„Współpraca z tym fotografem na naszym ślubie była najlepszą decyzją, jaką podjęliśmy. Zdjęcia uchwyciły każdą emocję i wyjątkowy moment idealnie. Nie moglibyśmy być bardziej zadowoleni z rezultatów!”</p>
-                    <div class="flex items-center justify-center">
-                        <div class="w-12 h-12 rounded-full overflow-hidden mr-4">
-                            <img src="https://readdy.ai/api/search-image?query=professional%20headshot%20of%20young%20woman%20with%20blonde%20hair%2C%20natural%20makeup%2C%20friendly%20smile%2C%20neutral%20background%2C%20high%20quality%20portrait&width=100&height=100&seq=10&orientation=squarish" alt="Client" class="w-full h-full object-cover object-top">
-                        </div>
-                        <div>
-                            <h4 class="font-bold">Emilia Lewandowska</h4>
-                            <p class="text-sm text-gray-500">Klient ślubny</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="bg-white rounded-lg p-8 shadow-lg">
-                    <div class="flex justify-center mb-4">
-                        <div class="flex text-yellow-400">
-                            <i class="ri-star-fill ri-lg"></i>
-                            <i class="ri-star-fill ri-lg"></i>
-                            <i class="ri-star-fill ri-lg"></i>
-                            <i class="ri-star-fill ri-lg"></i>
-                            <i class="ri-star-fill ri-lg"></i>
-                        </div>
-                    </div>
-                    <p class="text-gray-600 text-center mb-6">„Fotografia komercyjna naszej linii produktów przerosła nasze oczekiwania. Zdjęcia są oszałamiające i znacznie poprawiły naszą sprzedaż online. Gorąco polecam!”</p>
-                    <div class="flex items-center justify-center">
-                        <div class="w-12 h-12 rounded-full overflow-hidden mr-4">
-                            <img src="https://readdy.ai/api/search-image?query=professional%20headshot%20of%20middle-aged%20man%20with%20glasses%2C%20business%20attire%2C%20confident%20expression%2C%20neutral%20background%2C%20high%20quality%20portrait&width=100&height=100&seq=11&orientation=squarish" alt="Client" class="w-full h-full object-cover object-top">
-                        </div>
-                        <div>
-                            <h4 class="font-bold">Michał Tomasiak</h4>
-                            <p class="text-sm text-gray-500">Właściciel firmy</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="bg-white rounded-lg p-8 shadow-lg">
-                    <div class="flex justify-center mb-4">
-                        <div class="flex text-yellow-400">
-                            <i class="ri-star-fill ri-lg"></i>
-                            <i class="ri-star-fill ri-lg"></i>
-                            <i class="ri-star-fill ri-lg"></i>
-                            <i class="ri-star-fill ri-lg"></i>
-                            <i class="ri-star-fill ri-lg"></i>
-                        </div>
-                    </div>
-                    <p class="text-gray-600 text-center mb-6">„Nasza rodzinna sesja portretowa była świetną zabawą! Fotograf sprawił, że wszyscy poczuli się komfortowo, nawet nasz nieśmiały maluch. Zdjęcia są piękne i doskonale oddają naszą rodzinę”.</p>
-                    <div class="flex items-center justify-center">
-                        <div class="w-12 h-12 rounded-full overflow-hidden mr-4">
-                            <img src="https://readdy.ai/api/search-image?query=professional%20headshot%20of%20young%20woman%20with%20dark%20hair%2C%20casual%20stylish%20outfit%2C%20warm%20smile%2C%20neutral%20background%2C%20high%20quality%20portrait&width=100&height=100&seq=12&orientation=squarish" alt="Client" class="w-full h-full object-cover object-top">
-                        </div>
-                        <div>
-                            <h4 class="font-bold">Sylwia Kujawka</h4>
-                            <p class="text-sm text-gray-500">Klientka Portretu Rodzinnego</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-    <!-- Contact Form -->
-    <section id="contact" class="py-20 bg-gray-50 relative">
-        <div class="smoke-container">
-            <div class="smoke" style="top: 30%; left: 10%; animation-delay: 2s;"></div>
-            <div class="smoke" style="top: 70%; left: 70%; animation-delay: 5s;"></div>
-        </div>
-        <div class="container mx-auto px-8">
-            <h2 class="text-4xl font-bold text-center mb-4 reveal">Skontaktuj się z nami</h2>
-            <p class="text-gray-600 text-center max-w-2xl mx-auto mb-16 reveal">Jesteś gotowy omówić swoje potrzeby fotograficzne? Skontaktuj się z nami, aby zaplanować konsultację lub zarezerwować sesję.</p>
-            <div class="flex flex-col lg:flex-row gap-12 reveal">
-                <div class="lg:w-1/2">
-                    <form class="bg-white rounded-lg p-8 shadow-lg">
-                        <div class="mb-6">
-                            <label for="name" class="block text-gray-700 font-medium mb-2">Twoje Imię</label>
-                            <input type="text" id="name" class="input-field w-full px-4 py-3 border border-gray-300 rounded focus:outline-none" placeholder="John Doe">
-                        </div>
-                        <div class="mb-6">
-                            <label for="email" class="block text-gray-700 font-medium mb-2">Email Adres</label>
-                            <input type="email" id="email" class="input-field w-full px-4 py-3 border border-gray-300 rounded focus:outline-none" placeholder="john@example.com">
-                        </div>
-                        <div class="mb-6">
-                            <label for="service" class="block text-gray-700 font-medium mb-2">Usługi które Cie interesują:</label>
-                            <div class="relative">
-                                <select id="service" class="input-field w-full px-4 py-3 border border-gray-300 rounded focus:outline-none appearance-none pr-8">
-                                    <option value="" selected disabled>Wybierz usługę</option>
-                                    <option value="wedding">Fotografia ślubna</option>
-                                    <option value="portrait">Sesja portretowa</option>
-                                    <option value="commercial">Fotografia komercyjna</option>
-                                    <option value="event">Relacja z wydarzenia</option>
-                                    <option value="fineart">Fotografia artystyczna</option>
-                                    <option value="editing">Edycja zdjęć</option>
-                                </select>
-                                <div class="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
-                                    <i class="ri-arrow-down-s-line"></i>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="mb-6">
-                            <label for="message" class="block text-gray-700 font-medium mb-2">Twoja wiadomość</label>
-                            <textarea id="message" rows="5" class="input-field w-full px-4 py-3 border border-gray-300 rounded focus:outline-none" placeholder="Tell me about your project..."></textarea>
-                        </div>
-                        <div class="mb-6 flex items-center">
-                            <div class="custom-checkbox" id="newsletter-checkbox"></div>
-                            <label for="newsletter-checkbox" class="ml-3 text-gray-700 cursor-pointer">Zapisz się do newslettera</label>
-                        </div>
-                        <button type="submit" class="w-full bg-primary hover:bg-blue-600 text-white font-semibold py-3 px-8 !rounded-button shadow-lg transition-all duration-300">
-                            Wyślij Wiadomość
-                        </button>
-                    </form>
-                </div>
-                <div class="lg:w-1/2">
-                    <div class="bg-white rounded-lg p-8 shadow-lg h-full">
-                        <h3 class="text-2xl font-bold mb-6">Informacje Kontaktowe</h3>
-                        <div class="space-y-6">
-                            <div class="flex items-start">
-                                <div class="w-10 h-10 flex items-center justify-center bg-blue-100 rounded-full mr-4">
-                                    <i class="ri-map-pin-line text-primary"></i>
-                                </div>
-                                <div>
-                                    <h4 class="font-bold text-gray-800">Studio Location</h4>
-                                    <p class="text-gray-600">123 Creative Avenue, Suite 456<br>New York, NY 10001</p>
-                                </div>
-                            </div>
-                            <div class="flex items-start">
-                                <div class="w-10 h-10 flex items-center justify-center bg-blue-100 rounded-full mr-4">
-                                    <i class="ri-mail-line text-primary"></i>
-                                </div>
-                                <div>
-                                    <h4 class="font-bold text-gray-800">Email Address</h4>
-                                    <p class="text-gray-600">info@photographystudio.com<br>bookings@photographystudio.com</p>
-                                </div>
-                            </div>
-                            <div class="flex items-start">
-                                <div class="w-10 h-10 flex items-center justify-center bg-blue-100 rounded-full mr-4">
-                                    <i class="ri-phone-line text-primary"></i>
-                                </div>
-                                <div>
-                                    <h4 class="font-bold text-gray-800">Phone Number</h4>
-                                    <p class="text-gray-600">(212) 555-7890<br>(212) 555-1234</p>
-                                </div>
-                            </div>
-                            <div class="flex items-start">
-                                <div class="w-10 h-10 flex items-center justify-center bg-blue-100 rounded-full mr-4">
-                                    <i class="ri-time-line text-primary"></i>
-                                </div>
-                                <div>
-                                    <h4 class="font-bold text-gray-800">Business Hours</h4>
-                                    <p class="text-gray-600">Monday - Friday: 9:00 AM - 6:00 PM<br>Saturday: 10:00 AM - 4:00 PM<br>Sunday: Closed</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="mt-8">
-                            <h4 class="font-bold text-gray-800 mb-4">Follow Me</h4>
-                            <div class="flex space-x-4">
-                                <a href="#" class="social-icon w-10 h-10 flex items-center justify-center bg-gray-100 rounded-full text-gray-600 hover:text-primary">
-                                    <i class="ri-instagram-line"></i>
-                                </a>
-                                <a href="#" class="social-icon w-10 h-10 flex items-center justify-center bg-gray-100 rounded-full text-gray-600 hover:text-primary">
-                                    <i class="ri-facebook-line"></i>
-                                </a>
-                                <a href="#" class="social-icon w-10 h-10 flex items-center justify-center bg-gray-100 rounded-full text-gray-600 hover:text-primary">
-                                    <i class="ri-twitter-x-line"></i>
-                                </a>
-                                <a href="#" class="social-icon w-10 h-10 flex items-center justify-center bg-gray-100 rounded-full text-gray-600 hover:text-primary">
-                                    <i class="ri-pinterest-line"></i>
-                                </a>
-                                <a href="#" class="social-icon w-10 h-10 flex items-center justify-center bg-gray-100 rounded-full text-gray-600 hover:text-primary">
-                                    <i class="ri-linkedin-line"></i>
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-    <!-- Footer -->
-    <footer class="bg-gray-900 text-white py-12">
-        <div class="container mx-auto px-8">
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
-                <div>
-                    <a href="#" class="text-white text-3xl font-['Pacifico'] tracking-wider mb-4 block">logo</a>
-                    <p class="text-gray-400 mb-6">Capturing life's most precious moments with artistry and passion since 2010.</p>
-                    <div class="flex space-x-4">
-                        <a href="#" class="social-icon w-10 h-10 flex items-center justify-center bg-gray-800 rounded-full text-gray-400 hover:text-primary">
-                            <i class="ri-instagram-line"></i>
-                        </a>
-                        <a href="#" class="social-icon w-10 h-10 flex items-center justify-center bg-gray-800 rounded-full text-gray-400 hover:text-primary">
-                            <i class="ri-facebook-line"></i>
-                        </a>
-                        <a href="#" class="social-icon w-10 h-10 flex items-center justify-center bg-gray-800 rounded-full text-gray-400 hover:text-primary">
-                            <i class="ri-twitter-x-line"></i>
-                        </a>
-                        <a href="#" class="social-icon w-10 h-10 flex items-center justify-center bg-gray-800 rounded-full text-gray-400 hover:text-primary">
-                            <i class="ri-pinterest-line"></i>
-                        </a>
-                    </div>
-                </div>
-                <div>
-                    <h3 class="text-lg font-bold mb-4">Quick Links</h3>
-                    <ul class="space-y-2">
-                        <li><a href="#home" class="text-gray-400 hover:text-primary transition-colors">Home</a></li>
-                        <li><a href="#portfolio" class="text-gray-400 hover:text-primary transition-colors">Portfolio</a></li>
-                        <li><a href="#about" class="text-gray-400 hover:text-primary transition-colors">About</a></li>
-                        <li><a href="#services" class="text-gray-400 hover:text-primary transition-colors">Services</a></li>
-                        <li><a href="#contact" class="text-gray-400 hover:text-primary transition-colors">Contact</a></li>
-                    </ul>
-                </div>
-                <div>
-                    <h3 class="text-lg font-bold mb-4">Services</h3>
-                    <ul class="space-y-2">
-                        <li><a href="#" class="text-gray-400 hover:text-primary transition-colors">Wedding Photography</a></li>
-                        <li><a href="#" class="text-gray-400 hover:text-primary transition-colors">Portrait Sessions</a></li>
-                        <li><a href="#" class="text-gray-400 hover:text-primary transition-colors">Commercial Photography</a></li>
-                        <li><a href="#" class="text-gray-400 hover:text-primary transition-colors">Event Coverage</a></li>
-                        <li><a href="#" class="text-gray-400 hover:text-primary transition-colors">Fine Art Photography</a></li>
-                    </ul>
-                </div>
-                <div>
-                    <h3 class="text-lg font-bold mb-4">Subscribe</h3>
-                    <p class="text-gray-400 mb-4">Subscribe to our newsletter for the latest updates and special offers.</p>
-                    <form>
-                        <div class="flex mb-4">
-                            <input type="email" placeholder="Your email address" class="px-4 py-2 w-full border-none rounded-l focus:outline-none text-gray-800">
-                            <button type="submit" class="bg-primary hover:bg-blue-600 text-white px-4 py-2 !rounded-r-button whitespace-nowrap">Subscribe</button>
-                        </div>
-                    </form>
-                    <div class="flex items-center space-x-4 mt-6">
-                        <span class="text-gray-400">We accept:</span>
-                        <div class="flex space-x-2">
-                            <i class="ri-visa-fill ri-lg text-gray-400"></i>
-                            <i class="ri-mastercard-fill ri-lg text-gray-400"></i>
-                            <i class="ri-paypal-fill ri-lg text-gray-400"></i>
-                            <i class="ri-apple-fill ri-lg text-gray-400"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="border-t border-gray-800 pt-8 mt-8 text-center">
-                <p class="text-gray-400">&copy; 2025 Vision Capture Photography. All rights reserved. | Last updated: May 8, 2025</p>
-                <div class="flex justify-center space-x-6 mt-4">
-                    <a href="#" class="text-gray-400 hover:text-primary transition-colors">Privacy Policy</a>
-                    <a href="#" class="text-gray-400 hover:text-primary transition-colors">Terms of Service</a>
-                    <a href="#" class="text-gray-400 hover:text-primary transition-colors">Cookie Policy</a>
-                </div>
-            </div>
-        </div>
-    </footer>
-    <a href="#" class="back-to-top w-12 h-12 flex items-center justify-center bg-primary text-white rounded-full shadow-lg">
-        <i class="ri-arrow-up-line ri-lg"></i>
-    </a>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/particles.js/2.0.0/particles.min.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Lightbox functionality
-            const lightbox = document.querySelector('.lightbox');
-            const lightboxImg = lightbox.querySelector('img');
-            const lightboxClose = lightbox.querySelector('.lightbox-close');
-            const galleryItems = document.querySelectorAll('.gallery-item img');
-            galleryItems.forEach(img => {
-                img.addEventListener('click', () => {
-                    lightboxImg.src = img.src;
-                    lightbox.classList.add('active');
-                    document.body.style.overflow = 'hidden';
-                });
-            });
-            lightboxClose.addEventListener('click', () => {
-                lightbox.classList.remove('active');
-                document.body.style.overflow = '';
-            });
-            lightbox.addEventListener('click', (e) => {
-                if (e.target === lightbox) {
-                    lightbox.classList.remove('active');
-                    document.body.style.overflow = '';
-                }
-            });
-            // 3D Tilt Effect for Service Cards
-            const cards = document.querySelectorAll('.service-card');
-            cards.forEach(card => {
-                card.addEventListener('mousemove', (e) => {
-                    const rect = card.getBoundingClientRect();
-                    const x = e.clientX - rect.left;
-                    const y = e.clientY - rect.top;
-
-                    const centerX = rect.width / 2;
-                    const centerY = rect.height / 2;
-
-                    const rotateX = (y - centerY) / 20;
-                    const rotateY = (centerX - x) / 20;
-
-                    card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateZ(30px)`;
-                });
-
-                card.addEventListener('mouseleave', () => {
-                    card.style.transform = 'perspective(1000px) rotateX(0) rotateY(0) translateZ(0)';
-                });
-            });
-            // Custom cursor
-            const cursor = document.querySelector('.custom-cursor');
-            document.addEventListener('mousemove', (e) => {
-                cursor.style.left = e.clientX + 'px';
-                cursor.style.top = e.clientY + 'px';
-            });
-            document.addEventListener('mousedown', () => {
-                cursor.classList.add('cursor-grow');
-            });
-            document.addEventListener('mouseup', () => {
-                cursor.classList.remove('cursor-grow');
-            });
-            const links = document.querySelectorAll('a, button');
-            links.forEach(link => {
-                link.addEventListener('mouseenter', () => {
-                    cursor.classList.add('cursor-grow');
-                });
-                link.addEventListener('mouseleave', () => {
-                    cursor.classList.remove('cursor-grow');
-                });
-            });
-            // Initialize particles.js
-            particlesJS('particles-js', {
-                "particles": {
-                    "number": {
-                        "value": 80,
-                        "density": {
-                            "enable": true,
-                            "value_area": 800
-                        }
-                    },
-                    "color": {
-                        "value": "#ffffff"
-                    },
-                    "shape": {
-                        "type": "circle",
-                        "stroke": {
-                            "width": 0,
-                            "color": "#000000"
-                        },
-                        "polygon": {
-                            "nb_sides": 5
-                        }
-                    },
-                    "opacity": {
-                        "value": 0.5,
-                        "random": false,
-                        "anim": {
-                            "enable": false,
-                            "speed": 1,
-                            "opacity_min": 0.1,
-                            "sync": false
-                        }
-                    },
-                    "size": {
-                        "value": 3,
-                        "random": true,
-                        "anim": {
-                            "enable": false,
-                            "speed": 40,
-                            "size_min": 0.1,
-                            "sync": false
-                        }
-                    },
-                    "line_linked": {
-                        "enable": true,
-                        "distance": 150,
-                        "color": "#ffffff",
-                        "opacity": 0.4,
-                        "width": 1
-                    },
-                    "move": {
-                        "enable": true,
-                        "speed": 2,
-                        "direction": "none",
-                        "random": false,
-                        "straight": false,
-                        "out_mode": "out",
-                        "bounce": false,
-                        "attract": {
-                            "enable": false,
-                            "rotateX": 600,
-                            "rotateY": 1200
-                        }
-                    }
-                },
-                "interactivity": {
-                    "detect_on": "canvas",
-                    "events": {
-                        "onhover": {
-                            "enable": true,
-                            "mode": "grab"
-                        },
-                        "onclick": {
-                            "enable": true,
-                            "mode": "push"
-                        },
-                        "resize": true
-                    },
-                    "modes": {
-                        "grab": {
-                            "distance": 140,
-                            "line_linked": {
-                                "opacity": 1
-                            }
-                        },
-                        "bubble": {
-                            "distance": 400,
-                            "size": 40,
-                            "duration": 2,
-                            "opacity": 8,
-                            "speed": 3
-                        },
-                        "repulse": {
-                            "distance": 200,
-                            "duration": 0.4
-                        },
-                        "push": {
-                            "particles_nb": 4
-                        },
-                        "remove": {
-                            "particles_nb": 2
-                        }
-                    }
-                },
-                "retina_detect": true
-            });
-            // Smoke animation
-            function createSmoke() {
-                const smokeContainers = document.querySelectorAll('.smoke-container');
-                smokeContainers.forEach(container => {
-                    const smokes = container.querySelectorAll('.smoke');
-                    smokes.forEach(smoke => {
-                        const randomX = Math.random() * 100;
-                        const randomY = Math.random() * 100;
-                        smoke.style.left = `${randomX}%`;
-                        smoke.style.top = `${randomY}%`;
-                    });
-                });
-            }
-            createSmoke();
-            setInterval(createSmoke, 8000);
-            // Filter buttons
-            const filterBtns = document.querySelectorAll('.filter-btn');
-            filterBtns.forEach(btn => {
-                btn.addEventListener('click', () => {
-                    filterBtns.forEach(b => b.classList.remove('active'));
-                    btn.classList.add('active');
-                });
-            });
-            // Custom checkbox
-            const checkbox = document.getElementById('newsletter-checkbox');
-            checkbox.addEventListener('click', () => {
-                checkbox.classList.toggle('checked');
-            });
-            // Count up animation
-            const countElements = document.querySelectorAll('.count-up');
-
-            function animateCount(el) {
-                const target = parseInt(el.getAttribute('data-target'));
-                const duration = 2000; // ms
-                const start = parseInt(el.textContent);
-                const increment = target / (duration / 16); // 60fps
-                let current = start;
-                const timer = setInterval(() => {
-                    current += increment;
-                    if (current >= target) {
-                        el.textContent = target;
-                        clearInterval(timer);
-                    } else {
-                        el.textContent = Math.floor(current);
-                    }
-                }, 16);
-            }
-            // Intersection Observer for reveal animations
-            const revealElements = document.querySelectorAll('.reveal');
-            const revealObserver = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        entry.target.classList.add('active');
-                        // If it's a count element, start the animation
-                        if (entry.target.querySelectorAll('.count-up').length > 0) {
-                            entry.target.querySelectorAll('.count-up').forEach(el => {
-                                animateCount(el);
-                            });
-                        }
-                        revealObserver.unobserve(entry.target);
-                    }
-                });
-            }, {
-                threshold: 0.1
-            });
-            revealElements.forEach(el => {
-                revealObserver.observe(el);
-            });
-            // Back to top button
-            const backToTopBtn = document.querySelector('.back-to-top');
-            window.addEventListener('scroll', () => {
-                if (window.pageYOffset > 300) {
-                    backToTopBtn.classList.add('visible');
-                } else {
-                    backToTopBtn.classList.remove('visible');
-                }
-            });
-            backToTopBtn.addEventListener('click', (e) => {
-                e.preventDefault();
-                window.scrollTo({
-                    top: 0,
-                    behavior: 'smooth'
-                });
-            });
-            // Smooth scroll for navigation links
-            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-                anchor.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    const targetId = this.getAttribute('href');
-                    if (targetId === '#') return;
-                    const targetElement = document.querySelector(targetId);
-                    if (targetElement) {
-                        targetElement.scrollIntoView({
-                            behavior: 'smooth'
-                        });
-                    }
-                });
-            });
-        });
-
-    </script>
+<!-- Portfolio Section -->
+<section id="portfolio" class="py-20 px-4">
+<div class="container mx-auto">
+<h2 class="text-3xl md:text-4xl font-bold text-center mb-4">Portfolio</h2>
+<p class="text-gray-600 text-center mb-12 max-w-2xl mx-auto">Odkryj moje najlepsze prace i zobacz, jak uwieczniam wyjątkowe momenty w życiu moich klientów</p>
+<!-- Portfolio Filters -->
+<div class="flex flex-wrap justify-center mb-10 gap-2">
+<button class="filter-btn active bg-primary text-white px-6 py-2 rounded-button whitespace-nowrap" data-filter="all">Wszystkie</button>
+<button class="filter-btn bg-gray-200 hover:bg-gray-300 px-6 py-2 rounded-button whitespace-nowrap" data-filter="wedding">Śluby</button>
+<button class="filter-btn bg-gray-200 hover:bg-gray-300 px-6 py-2 rounded-button whitespace-nowrap" data-filter="portrait">Portrety</button>
+<button class="filter-btn bg-gray-200 hover:bg-gray-300 px-6 py-2 rounded-button whitespace-nowrap" data-filter="event">Wydarzenia</button>
+<button class="filter-btn bg-gray-200 hover:bg-gray-300 px-6 py-2 rounded-button whitespace-nowrap" data-filter="nature">Natura</button>
+</div>
+<!-- Portfolio Gallery -->
+<div class="masonry-grid">
+<div class="portfolio-item wedding" data-category="wedding">
+<img src="https://readdy.ai/api/search-image?query=elegant%20wedding%20photography%2C%20bride%20and%20groom%20in%20romantic%20pose%2C%20soft%20natural%20lighting%2C%20emotional%20moment%2C%20high-end%20professional%20photography%2C%20shallow%20depth%20of%20field%2C%20wedding%20venue%20in%20background%2C%20cinematic%20composition&width=600&height=800&seq=port1&orientation=portrait" alt="Fotografia ślubna - para młoda" class="rounded shadow-lg">
+</div>
+<div class="portfolio-item portrait" data-category="portrait">
+<img src="https://readdy.ai/api/search-image?query=professional%20portrait%20photography%20of%20a%20young%20woman%20with%20natural%20light%2C%20soft%20bokeh%20background%2C%20professional%20studio%20lighting%2C%20artistic%20composition%2C%20high%20fashion%20look%2C%20elegant%20styling%2C%20photorealistic&width=600&height=700&seq=port2&orientation=portrait" alt="Portret kobiety" class="rounded shadow-lg">
+</div>
+<div class="portfolio-item event" data-category="event">
+<img src="https://readdy.ai/api/search-image?query=corporate%20event%20photography%2C%20business%20conference%20with%20speakers%20and%20audience%2C%20professional%20lighting%2C%20candid%20moment%2C%20photojournalistic%20style%2C%20high-end%20event%20venue%2C%20professional%20composition&width=800&height=600&seq=port3&orientation=landscape" alt="Wydarzenie firmowe" class="rounded shadow-lg">
+</div>
+<div class="portfolio-item nature" data-category="nature">
+<img src="https://readdy.ai/api/search-image?query=stunning%20landscape%20photography%2C%20mountain%20lake%20at%20sunset%2C%20dramatic%20sky%2C%20reflection%20in%20water%2C%20professional%20nature%20photography%2C%20high%20dynamic%20range%2C%20vibrant%20colors%2C%20wide%20angle%20shot&width=800&height=600&seq=port4&orientation=landscape" alt="Krajobraz górski" class="rounded shadow-lg">
+</div>
+<div class="portfolio-item wedding" data-category="wedding">
+<img src="https://readdy.ai/api/search-image?query=emotional%20wedding%20ceremony%20photography%2C%20bride%20walking%20down%20the%20aisle%2C%20teary-eyed%20father%2C%20church%20interior%2C%20soft%20natural%20light%20through%20stained%20glass%20windows%2C%20candid%20moment%2C%20professional%20wedding%20photography&width=600&height=800&seq=port5&orientation=portrait" alt="Ceremonia ślubna" class="rounded shadow-lg">
+</div>
+<div class="portfolio-item portrait" data-category="portrait">
+<img src="https://readdy.ai/api/search-image?query=professional%20male%20portrait%20photography%2C%20businessman%20in%20suit%2C%20dramatic%20studio%20lighting%2C%20professional%20headshot%2C%20corporate%20style%2C%20neutral%20background%2C%20sharp%20focus%20on%20eyes%2C%20professional%20retouching&width=600&height=700&seq=port6&orientation=portrait" alt="Portret biznesowy" class="rounded shadow-lg">
+</div>
+<div class="portfolio-item event" data-category="event">
+<img src="https://readdy.ai/api/search-image?query=music%20concert%20photography%2C%20band%20performing%20on%20stage%2C%20dramatic%20stage%20lighting%2C%20crowd%20in%20foreground%2C%20concert%20venue%2C%20professional%20event%20photography%2C%20dynamic%20composition%2C%20capturing%20energy&width=800&height=500&seq=port7&orientation=landscape" alt="Koncert muzyczny" class="rounded shadow-lg">
+</div>
+<div class="portfolio-item nature" data-category="nature">
+<img src="https://readdy.ai/api/search-image?query=professional%20wildlife%20photography%2C%20deer%20in%20forest%20at%20dawn%2C%20morning%20mist%2C%20golden%20hour%20lighting%2C%20telephoto%20lens%20compression%2C%20bokeh%20background%2C%20professional%20nature%20photography%2C%20serene%20atmosphere&width=700&height=500&seq=port8&orientation=landscape" alt="Dzikie zwierzęta" class="rounded shadow-lg">
+</div>
+<div class="portfolio-item wedding" data-category="wedding">
+<img src="https://readdy.ai/api/search-image?query=wedding%20reception%20photography%2C%20beautifully%20decorated%20venue%2C%20elegant%20table%20settings%2C%20romantic%20lighting%20with%20candles%2C%20wedding%20cake%2C%20professional%20event%20photography%2C%20wide%20angle%20shot%20capturing%20atmosphere&width=800&height=600&seq=port9&orientation=landscape" alt="Przyjęcie weselne" class="rounded shadow-lg">
+</div>
+</div>
+<div class="text-center mt-12">
+<button id="load-more" class="bg-primary text-white hover:bg-gray-800 px-8 py-3 rounded-button font-medium transition-colors whitespace-nowrap">Zobacz więcej</button>
+</div>
+</div>
+</section>
+<!-- Modal for Image Preview -->
+<div id="imageModal" class="modal">
+<span class="close">&times;</span>
+<img class="modal-content" id="modalImage">
+</div>
+<!-- Services Section -->
+<section id="services" class="py-20 px-4 bg-gray-50">
+<div class="container mx-auto">
+<h2 class="text-3xl md:text-4xl font-bold text-center mb-4">Usługi</h2>
+<p class="text-gray-600 text-center mb-12 max-w-2xl mx-auto">Oferuję szeroki zakres profesjonalnych usług fotograficznych dopasowanych do Twoich potrzeb</p>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+<!-- Service Card 1 -->
+<div class="service-card bg-white rounded-lg shadow-lg overflow-hidden relative group">
+<div class="p-6">
+<div class="w-16 h-16 bg-primary rounded-full flex items-center justify-center mx-auto mb-6">
+<i class="ri-camera-line ri-xl text-white"></i>
+</div>
+<h3 class="text-xl font-bold text-center mb-4">Fotografia ślubna</h3>
+<p class="text-gray-600 text-center">Uwiecznię najpiękniejszy dzień w Waszym życiu, tworząc ponadczasowe wspomnienia pełne emocji i magicznych chwil.</p>
+<div class="mt-6 text-center">
+<button class="text-primary hover:text-gray-800 font-medium flex items-center justify-center mx-auto whitespace-nowrap">
+Szczegóły
+<i class="ri-arrow-right-line ml-2"></i>
+</button>
+</div>
+</div>
+<div class="service-details absolute inset-0 bg-primary bg-opacity-90 p-6 flex flex-col justify-center items-center text-white opacity-0 transition-opacity duration-300">
+<h3 class="text-xl font-bold mb-4">Fotografia ślubna</h3>
+<ul class="space-y-2 mb-6">
+<li class="flex items-start">
+<i class="ri-check-line mr-2 mt-1"></i>
+<span>Sesja narzeczeńska</span>
+</li>
+<li class="flex items-start">
+<i class="ri-check-line mr-2 mt-1"></i>
+<span>Przygotowania Pary Młodej</span>
+</li>
+<li class="flex items-start">
+<i class="ri-check-line mr-2 mt-1"></i>
+<span>Ceremonia ślubu</span>
+</li>
+<li class="flex items-start">
+<i class="ri-check-line mr-2 mt-1"></i>
+<span>Przyjęcie weselne</span>
+</li>
+<li class="flex items-start">
+<i class="ri-check-line mr-2 mt-1"></i>
+<span>Plener poślubny</span>
+</li>
+</ul>
+<button class="bg-white text-primary hover:bg-gray-200 px-6 py-2 rounded-button font-medium transition-colors whitespace-nowrap">Zapytaj o ofertę</button>
+</div>
+</div>
+<!-- Service Card 2 -->
+<div class="service-card bg-white rounded-lg shadow-lg overflow-hidden relative group">
+<div class="p-6">
+<div class="w-16 h-16 bg-primary rounded-full flex items-center justify-center mx-auto mb-6">
+<i class="ri-user-smile-line ri-xl text-white"></i>
+</div>
+<h3 class="text-xl font-bold text-center mb-4">Sesje portretowe</h3>
+<p class="text-gray-600 text-center">Profesjonalne portrety, które podkreślą Twoją osobowość i najlepsze cechy, idealne do celów prywatnych i biznesowych.</p>
+<div class="mt-6 text-center">
+<button class="text-primary hover:text-gray-800 font-medium flex items-center justify-center mx-auto whitespace-nowrap">
+Szczegóły
+<i class="ri-arrow-right-line ml-2"></i>
+</button>
+</div>
+</div>
+<div class="service-details absolute inset-0 bg-primary bg-opacity-90 p-6 flex flex-col justify-center items-center text-white opacity-0 transition-opacity duration-300">
+<h3 class="text-xl font-bold mb-4">Sesje portretowe</h3>
+<ul class="space-y-2 mb-6">
+<li class="flex items-start">
+<i class="ri-check-line mr-2 mt-1"></i>
+<span>Portrety biznesowe</span>
+</li>
+<li class="flex items-start">
+<i class="ri-check-line mr-2 mt-1"></i>
+<span>Sesje rodzinne</span>
+</li>
+<li class="flex items-start">
+<i class="ri-check-line mr-2 mt-1"></i>
+<span>Sesje lifestyle</span>
+</li>
+<li class="flex items-start">
+<i class="ri-check-line mr-2 mt-1"></i>
+<span>Portrety artystyczne</span>
+</li>
+<li class="flex items-start">
+<i class="ri-check-line mr-2 mt-1"></i>
+<span>Sesje ciążowe i dziecięce</span>
+</li>
+</ul>
+<button class="bg-white text-primary hover:bg-gray-200 px-6 py-2 rounded-button font-medium transition-colors whitespace-nowrap">Zapytaj o ofertę</button>
+</div>
+</div>
+<!-- Service Card 3 -->
+<div class="service-card bg-white rounded-lg shadow-lg overflow-hidden relative group">
+<div class="p-6">
+<div class="w-16 h-16 bg-primary rounded-full flex items-center justify-center mx-auto mb-6">
+<i class="ri-building-line ri-xl text-white"></i>
+</div>
+<h3 class="text-xl font-bold text-center mb-4">Fotografia eventowa</h3>
+<p class="text-gray-600 text-center">Profesjonalna obsługa wydarzeń firmowych, konferencji, koncertów i imprez okolicznościowych.</p>
+<div class="mt-6 text-center">
+<button class="text-primary hover:text-gray-800 font-medium flex items-center justify-center mx-auto whitespace-nowrap">
+Szczegóły
+<i class="ri-arrow-right-line ml-2"></i>
+</button>
+</div>
+</div>
+<div class="service-details absolute inset-0 bg-primary bg-opacity-90 p-6 flex flex-col justify-center items-center text-white opacity-0 transition-opacity duration-300">
+<h3 class="text-xl font-bold mb-4">Fotografia eventowa</h3>
+<ul class="space-y-2 mb-6">
+<li class="flex items-start">
+<i class="ri-check-line mr-2 mt-1"></i>
+<span>Konferencje i szkolenia</span>
+</li>
+<li class="flex items-start">
+<i class="ri-check-line mr-2 mt-1"></i>
+<span>Imprezy firmowe</span>
+</li>
+<li class="flex items-start">
+<i class="ri-check-line mr-2 mt-1"></i>
+<span>Koncerty i festiwale</span>
+</li>
+<li class="flex items-start">
+<i class="ri-check-line mr-2 mt-1"></i>
+<span>Targi i wystawy</span>
+</li>
+<li class="flex items-start">
+<i class="ri-check-line mr-2 mt-1"></i>
+<span>Uroczystości okolicznościowe</span>
+</li>
+</ul>
+<button class="bg-white text-primary hover:bg-gray-200 px-6 py-2 rounded-button font-medium transition-colors whitespace-nowrap">Zapytaj o ofertę</button>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Pricing Section -->
+<section id="pricing" class="py-20 px-4">
+<div class="container mx-auto">
+<h2 class="text-3xl md:text-4xl font-bold text-center mb-4">Cennik</h2>
+<p class="text-gray-600 text-center mb-12 max-w-2xl mx-auto">Wybierz pakiet dopasowany do Twoich potrzeb i oczekiwań</p>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+<!-- Basic Package -->
+<div class="bg-white rounded-lg shadow-lg overflow-hidden transition-transform duration-300 hover:transform hover:scale-105">
+<div class="p-6">
+<h3 class="text-xl font-bold text-center mb-2">Pakiet Podstawowy</h3>
+<div class="text-center mb-6">
+<span class="text-3xl font-bold">799 zł</span>
+</div>
+<ul class="space-y-3 mb-6">
+<li class="flex items-start">
+<i class="ri-check-line text-green-500 mr-2 mt-1"></i>
+<span>2-godzinna sesja zdjęciowa</span>
+</li>
+<li class="flex items-start">
+<i class="ri-check-line text-green-500 mr-2 mt-1"></i>
+<span>1 lokalizacja</span>
+</li>
+<li class="flex items-start">
+<i class="ri-check-line text-green-500 mr-2 mt-1"></i>
+<span>20 zdjęć w pełnej rozdzielczości</span>
+</li>
+<li class="flex items-start">
+<i class="ri-check-line text-green-500 mr-2 mt-1"></i>
+<span>Podstawowa obróbka zdjęć</span>
+</li>
+<li class="flex items-start">
+<i class="ri-check-line text-green-500 mr-2 mt-1"></i>
+<span>Galeria online (30 dni)</span>
+</li>
+<li class="flex items-start text-gray-400">
+<i class="ri-close-line mr-2 mt-1"></i>
+<span>Dodatkowe stylizacje</span>
+</li>
+<li class="flex items-start text-gray-400">
+<i class="ri-close-line mr-2 mt-1"></i>
+<span>Album drukowany</span>
+</li>
+</ul>
+<div class="text-center">
+<button class="bg-gray-200 hover:bg-gray-300 text-primary px-8 py-3 rounded-button font-medium transition-colors w-full whitespace-nowrap">Wybierz pakiet</button>
+</div>
+</div>
+</div>
+<!-- Premium Package (Highlighted) -->
+<div class="bg-white rounded-lg shadow-xl overflow-hidden transform scale-105 border-2 border-primary relative transition-transform duration-300 hover:transform hover:scale-110">
+<div class="absolute top-0 right-0 bg-primary text-white py-1 px-4 text-sm font-medium">Polecany</div>
+<div class="p-6">
+<h3 class="text-xl font-bold text-center mb-2">Pakiet Premium</h3>
+<div class="text-center mb-6">
+<span class="text-3xl font-bold">1499 zł</span>
+</div>
+<ul class="space-y-3 mb-6">
+<li class="flex items-start">
+<i class="ri-check-line text-green-500 mr-2 mt-1"></i>
+<span>4-godzinna sesja zdjęciowa</span>
+</li>
+<li class="flex items-start">
+<i class="ri-check-line text-green-500 mr-2 mt-1"></i>
+<span>2 lokalizacje</span>
+</li>
+<li class="flex items-start">
+<i class="ri-check-line text-green-500 mr-2 mt-1"></i>
+<span>50 zdjęć w pełnej rozdzielczości</span>
+</li>
+<li class="flex items-start">
+<i class="ri-check-line text-green-500 mr-2 mt-1"></i>
+<span>Zaawansowana obróbka zdjęć</span>
+</li>
+<li class="flex items-start">
+<i class="ri-check-line text-green-500 mr-2 mt-1"></i>
+<span>Galeria online (90 dni)</span>
+</li>
+<li class="flex items-start">
+<i class="ri-check-line text-green-500 mr-2 mt-1"></i>
+<span>1 dodatkowa stylizacja</span>
+</li>
+<li class="flex items-start text-gray-400">
+<i class="ri-close-line mr-2 mt-1"></i>
+<span>Album drukowany</span>
+</li>
+</ul>
+<div class="text-center">
+<button class="bg-primary hover:bg-gray-800 text-white px-8 py-3 rounded-button font-medium transition-colors w-full whitespace-nowrap">Wybierz pakiet</button>
+</div>
+</div>
+</div>
+<!-- Exclusive Package -->
+<div class="bg-white rounded-lg shadow-lg overflow-hidden transition-transform duration-300 hover:transform hover:scale-105">
+<div class="p-6">
+<h3 class="text-xl font-bold text-center mb-2">Pakiet Ekskluzywny</h3>
+<div class="text-center mb-6">
+<span class="text-3xl font-bold">2499 zł</span>
+</div>
+<ul class="space-y-3 mb-6">
+<li class="flex items-start">
+<i class="ri-check-line text-green-500 mr-2 mt-1"></i>
+<span>8-godzinna sesja zdjęciowa</span>
+</li>
+<li class="flex items-start">
+<i class="ri-check-line text-green-500 mr-2 mt-1"></i>
+<span>3 lokalizacje</span>
+</li>
+<li class="flex items-start">
+<i class="ri-check-line text-green-500 mr-2 mt-1"></i>
+<span>100 zdjęć w pełnej rozdzielczości</span>
+</li>
+<li class="flex items-start">
+<i class="ri-check-line text-green-500 mr-2 mt-1"></i>
+<span>Profesjonalna obróbka i retusz</span>
+</li>
+<li class="flex items-start">
+<i class="ri-check-line text-green-500 mr-2 mt-1"></i>
+<span>Galeria online (365 dni)</span>
+</li>
+<li class="flex items-start">
+<i class="ri-check-line text-green-500 mr-2 mt-1"></i>
+<span>2 dodatkowe stylizacje</span>
+</li>
+<li class="flex items-start">
+<i class="ri-check-line text-green-500 mr-2 mt-1"></i>
+<span>Luksusowy album 30x30cm</span>
+</li>
+</ul>
+<div class="text-center">
+<button class="bg-gray-200 hover:bg-gray-300 text-primary px-8 py-3 rounded-button font-medium transition-colors w-full whitespace-nowrap">Wybierz pakiet</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Testimonials Section -->
+<section id="testimonials" class="py-20 px-4 bg-gray-50">
+<div class="container mx-auto">
+<h2 class="text-3xl md:text-4xl font-bold text-center mb-4">Referencje</h2>
+<p class="text-gray-600 text-center mb-12 max-w-2xl mx-auto">Zobacz, co mówią o mnie moi klienci</p>
+<div class="relative">
+<div class="testimonial-slider overflow-hidden">
+<div class="testimonial-track flex transition-transform duration-500">
+<!-- Testimonial 1 -->
+<div class="testimonial-slide w-full md:w-1/2 lg:w-1/3 flex-shrink-0 px-4">
+<div class="bg-white p-6 rounded-lg shadow-md">
+<div class="flex items-center mb-4">
+<div class="text-yellow-400 flex">
+<i class="ri-star-fill"></i>
+<i class="ri-star-fill"></i>
+<i class="ri-star-fill"></i>
+<i class="ri-star-fill"></i>
+<i class="ri-star-fill"></i>
+</div>
+</div>
+<p class="text-gray-600 mb-6">"Zdjęcia z naszego ślubu przerosły nasze oczekiwania! Każde ujęcie pełne emocji i naturalności. Profesjonalizm na najwyższym poziomie, a przy tym świetny kontakt i atmosfera podczas pracy."</p>
+<div class="flex items-center">
+<div class="w-12 h-12 rounded-full overflow-hidden mr-4">
+<img src="https://readdy.ai/api/search-image?query=professional%20headshot%20of%20a%20young%20woman%20with%20brown%20hair%2C%20natural%20makeup%2C%20friendly%20smile%2C%20neutral%20background%2C%20professional%20portrait&width=100&height=100&seq=test1&orientation=squarish" alt="Karolina Nowak" class="w-full h-full object-cover">
+</div>
+<div>
+<h4 class="font-medium">Karolina Nowak</h4>
+<p class="text-sm text-gray-500">Sesja ślubna</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Testimonial 2 -->
+<div class="testimonial-slide w-full md:w-1/2 lg:w-1/3 flex-shrink-0 px-4">
+<div class="bg-white p-6 rounded-lg shadow-md">
+<div class="flex items-center mb-4">
+<div class="text-yellow-400 flex">
+<i class="ri-star-fill"></i>
+<i class="ri-star-fill"></i>
+<i class="ri-star-fill"></i>
+<i class="ri-star-fill"></i>
+<i class="ri-star-fill"></i>
+</div>
+</div>
+<p class="text-gray-600 mb-6">"Współpraca przy sesji biznesowej dla naszej firmy była czystą przyjemnością. Zdjęcia są profesjonalne, a jednocześnie naturalne. Cały zespół jest zachwycony efektami!"</p>
+<div class="flex items-center">
+<div class="w-12 h-12 rounded-full overflow-hidden mr-4">
+<img src="https://readdy.ai/api/search-image?query=professional%20headshot%20of%20a%20middle-aged%20businessman%20with%20glasses%2C%20confident%20expression%2C%20suit%20and%20tie%2C%20neutral%20background%2C%20corporate%20portrait&width=100&height=100&seq=test2&orientation=squarish" alt="Marek Kowalski" class="w-full h-full object-cover">
+</div>
+<div>
+<h4 class="font-medium">Marek Kowalski</h4>
+<p class="text-sm text-gray-500">Sesja biznesowa</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Testimonial 3 -->
+<div class="testimonial-slide w-full md:w-1/2 lg:w-1/3 flex-shrink-0 px-4">
+<div class="bg-white p-6 rounded-lg shadow-md">
+<div class="flex items-center mb-4">
+<div class="text-yellow-400 flex">
+<i class="ri-star-fill"></i>
+<i class="ri-star-fill"></i>
+<i class="ri-star-fill"></i>
+<i class="ri-star-fill"></i>
+<i class="ri-star-half-fill"></i>
+</div>
+</div>
+<p class="text-gray-600 mb-6">"Sesja rodzinna z dwójką małych dzieci to nie lada wyzwanie, ale udało się stworzyć piękne, naturalne zdjęcia, które zdobią teraz nasze ściany. Dzieci były zachwycone atmosferą podczas sesji!"</p>
+<div class="flex items-center">
+<div class="w-12 h-12 rounded-full overflow-hidden mr-4">
+<img src="https://readdy.ai/api/search-image?query=professional%20headshot%20of%20a%20young%20mother%20with%20blonde%20hair%2C%20warm%20smile%2C%20casual%20elegant%20style%2C%20neutral%20background%2C%20lifestyle%20portrait&width=100&height=100&seq=test3&orientation=squarish" alt="Anna Wiśniewska" class="w-full h-full object-cover">
+</div>
+<div>
+<h4 class="font-medium">Anna Wiśniewska</h4>
+<p class="text-sm text-gray-500">Sesja rodzinna</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Testimonial 4 -->
+<div class="testimonial-slide w-full md:w-1/2 lg:w-1/3 flex-shrink-0 px-4">
+<div class="bg-white p-6 rounded-lg shadow-md">
+<div class="flex items-center mb-4">
+<div class="text-yellow-400 flex">
+<i class="ri-star-fill"></i>
+<i class="ri-star-fill"></i>
+<i class="ri-star-fill"></i>
+<i class="ri-star-fill"></i>
+<i class="ri-star-fill"></i>
+</div>
+</div>
+<p class="text-gray-600 mb-6">"Fotografie z naszego koncertu jubileuszowego są absolutnie fantastyczne! Udało się uchwycić energię wydarzenia i emocje publiczności. Współpraca na najwyższym poziomie."</p>
+<div class="flex items-center">
+<div class="w-12 h-12 rounded-full overflow-hidden mr-4">
+<img src="https://readdy.ai/api/search-image?query=professional%20headshot%20of%20a%20young%20man%20with%20dark%20hair%20and%20beard%2C%20artistic%20style%2C%20casual%20clothing%2C%20neutral%20background%2C%20musician%20portrait&width=100&height=100&seq=test4&orientation=squarish" alt="Piotr Zieliński" class="w-full h-full object-cover">
+</div>
+<div>
+<h4 class="font-medium">Piotr Zieliński</h4>
+<p class="text-sm text-gray-500">Fotografia eventowa</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Slider Controls -->
+<button class="absolute top-1/2 left-0 transform -translate-y-1/2 bg-white rounded-full shadow-md w-10 h-10 flex items-center justify-center z-10 testimonial-prev">
+<i class="ri-arrow-left-s-line"></i>
+</button>
+<button class="absolute top-1/2 right-0 transform -translate-y-1/2 bg-white rounded-full shadow-md w-10 h-10 flex items-center justify-center z-10 testimonial-next">
+<i class="ri-arrow-right-s-line"></i>
+</button>
+<!-- Slider Dots -->
+<div class="flex justify-center mt-8 testimonial-dots">
+<button class="w-3 h-3 rounded-full bg-primary mx-1 testimonial-dot active" data-index="0"></button>
+<button class="w-3 h-3 rounded-full bg-gray-300 mx-1 testimonial-dot" data-index="1"></button>
+<button class="w-3 h-3 rounded-full bg-gray-300 mx-1 testimonial-dot" data-index="2"></button>
+<button class="w-3 h-3 rounded-full bg-gray-300 mx-1 testimonial-dot" data-index="3"></button>
+</div>
+</div>
+</div>
+</section>
+<!-- Contact Section -->
+<section id="contact" class="py-20 px-4">
+<div class="container mx-auto">
+<h2 class="text-3xl md:text-4xl font-bold text-center mb-4">Kontakt</h2>
+<p class="text-gray-600 text-center mb-12 max-w-2xl mx-auto">Masz pytania? Chcesz zarezerwować sesję? Skontaktuj się ze mną!</p>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+<!-- Contact Form -->
+<div class="bg-white p-8 rounded-lg shadow-lg">
+<form id="contact-form">
+<div class="mb-6">
+<label for="name" class="block text-gray-700 mb-2">Imię i nazwisko</label>
+<input type="text" id="name" class="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent" required>
+</div>
+<div class="mb-6">
+<label for="email" class="block text-gray-700 mb-2">Email</label>
+<input type="email" id="email" class="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent" required>
+</div>
+<div class="mb-6">
+<label for="phone" class="block text-gray-700 mb-2">Telefon</label>
+<input type="tel" id="phone" class="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+</div>
+<div class="mb-6">
+<label for="service" class="block text-gray-700 mb-2">Rodzaj usługi</label>
+<div class="relative">
+<select id="service" class="w-full px-4 py-2 border border-gray-300 rounded appearance-none focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent pr-8">
+<option value="">Wybierz usługę</option>
+<option value="wedding">Fotografia ślubna</option>
+<option value="portrait">Sesja portretowa</option>
+<option value="family">Sesja rodzinna</option>
+<option value="event">Fotografia eventowa</option>
+<option value="other">Inna</option>
+</select>
+<div class="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
+<i class="ri-arrow-down-s-line"></i>
+</div>
+</div>
+</div>
+<div class="mb-6">
+<label for="message" class="block text-gray-700 mb-2">Wiadomość</label>
+<textarea id="message" rows="5" class="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent" required></textarea>
+</div>
+<div class="mb-6 flex items-start">
+<input type="checkbox" id="privacy" class="custom-checkbox mr-3" required>
+<label for="privacy" class="text-sm text-gray-600">Wyrażam zgodę na przetwarzanie moich danych osobowych zgodnie z polityką prywatności.</label>
+</div>
+<button type="submit" class="bg-primary hover:bg-gray-800 text-white px-8 py-3 rounded-button font-medium transition-colors whitespace-nowrap w-full">Wyślij wiadomość</button>
+</form>
+</div>
+<!-- Contact Info & Map -->
+<div>
+<div class="bg-white p-8 rounded-lg shadow-lg mb-8">
+<h3 class="text-xl font-bold mb-6">Informacje kontaktowe</h3>
+<div class="space-y-4">
+<div class="flex items-start">
+<div class="w-10 h-10 rounded-full bg-primary bg-opacity-10 flex items-center justify-center mr-4">
+<i class="ri-map-pin-line text-primary"></i>
+</div>
+<div>
+<h4 class="font-medium">Adres</h4>
+<p class="text-gray-600">ul. Fotograficzna 42, 00-001 Warszawa</p>
+</div>
+</div>
+<div class="flex items-start">
+<div class="w-10 h-10 rounded-full bg-primary bg-opacity-10 flex items-center justify-center mr-4">
+<i class="ri-phone-line text-primary"></i>
+</div>
+<div>
+<h4 class="font-medium">Telefon</h4>
+<p class="text-gray-600">+48 123 456 789</p>
+</div>
+</div>
+<div class="flex items-start">
+<div class="w-10 h-10 rounded-full bg-primary bg-opacity-10 flex items-center justify-center mr-4">
+<i class="ri-mail-line text-primary"></i>
+</div>
+<div>
+<h4 class="font-medium">Email</h4>
+<p class="text-gray-600">kontakt@fotografartystyczny.pl</p>
+</div>
+</div>
+<div class="flex items-start">
+<div class="w-10 h-10 rounded-full bg-primary bg-opacity-10 flex items-center justify-center mr-4">
+<i class="ri-time-line text-primary"></i>
+</div>
+<div>
+<h4 class="font-medium">Godziny pracy</h4>
+<p class="text-gray-600">Poniedziałek - Piątek: 9:00 - 17:00</p>
+<p class="text-gray-600">Sobota: 10:00 - 14:00</p>
+</div>
+</div>
+</div>
+<h3 class="text-xl font-bold mt-8 mb-4">Znajdź mnie</h3>
+<div class="flex space-x-4">
+<a href="#" class="w-10 h-10 rounded-full bg-primary bg-opacity-10 flex items-center justify-center hover:bg-primary hover:text-white transition-colors">
+<i class="ri-facebook-fill"></i>
+</a>
+<a href="#" class="w-10 h-10 rounded-full bg-primary bg-opacity-10 flex items-center justify-center hover:bg-primary hover:text-white transition-colors">
+<i class="ri-instagram-line"></i>
+</a>
+<a href="#" class="w-10 h-10 rounded-full bg-primary bg-opacity-10 flex items-center justify-center hover:bg-primary hover:text-white transition-colors">
+<i class="ri-pinterest-line"></i>
+</a>
+<a href="#" class="w-10 h-10 rounded-full bg-primary bg-opacity-10 flex items-center justify-center hover:bg-primary hover:text-white transition-colors">
+<i class="ri-behance-line"></i>
+</a>
+</div>
+</div>
+<div class="bg-white rounded-lg shadow-lg overflow-hidden h-64">
+<div class="w-full h-full" style="background-image: url('https://public.readdy.ai/gen_page/map_placeholder_1280x720.png'); background-size: cover; background-position: center;"></div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Cookie Notice -->
+<div id="cookie-notice" class="fixed bottom-0 left-0 w-full bg-white shadow-lg p-4 z-50 hidden">
+<div class="container mx-auto flex flex-col md:flex-row items-center justify-between">
+<p class="text-gray-700 mb-4 md:mb-0">Ta strona używa plików cookie, aby zapewnić najlepszą jakość korzystania z naszej witryny. <a href="#" class="text-primary hover:underline">Polityka prywatności</a></p>
+<div class="flex space-x-4">
+<button id="accept-cookies" class="bg-primary hover:bg-gray-800 text-white px-6 py-2 rounded-button font-medium transition-colors whitespace-nowrap">Akceptuję</button>
+<button id="reject-cookies" class="bg-gray-200 hover:bg-gray-300 text-primary px-6 py-2 rounded-button font-medium transition-colors whitespace-nowrap">Odrzucam</button>
+</div>
+</div>
+</div>
+<!-- Footer -->
+<footer class="bg-gray-900 text-white py-12">
+<div class="container mx-auto px-4">
+<div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+<div>
+<a href="#" class="text-white text-3xl font-['Pacifico'] mb-4 inline-block">logo</a>
+<p class="text-gray-400 mb-6">Profesjonalna fotografia, która opowiada Twoją historię i zatrzymuje najpiękniejsze momenty życia.</p>
+<div class="flex space-x-4">
+<a href="#" class="text-gray-400 hover:text-white transition-colors">
+<i class="ri-facebook-fill"></i>
+</a>
+<a href="#" class="text-gray-400 hover:text-white transition-colors">
+<i class="ri-instagram-line"></i>
+</a>
+<a href="#" class="text-gray-400 hover:text-white transition-colors">
+<i class="ri-pinterest-line"></i>
+</a>
+<a href="#" class="text-gray-400 hover:text-white transition-colors">
+<i class="ri-behance-line"></i>
+</a>
+</div>
+</div>
+<div>
+<h3 class="text-lg font-bold mb-4">Szybkie linki</h3>
+<ul class="space-y-2">
+<li><a href="#portfolio" class="text-gray-400 hover:text-white transition-colors">Portfolio</a></li>
+<li><a href="#services" class="text-gray-400 hover:text-white transition-colors">Usługi</a></li>
+<li><a href="#pricing" class="text-gray-400 hover:text-white transition-colors">Cennik</a></li>
+<li><a href="#testimonials" class="text-gray-400 hover:text-white transition-colors">Referencje</a></li>
+<li><a href="#contact" class="text-gray-400 hover:text-white transition-colors">Kontakt</a></li>
+</ul>
+</div>
+<div>
+<h3 class="text-lg font-bold mb-4">Usługi</h3>
+<ul class="space-y-2">
+<li><a href="#" class="text-gray-400 hover:text-white transition-colors">Fotografia ślubna</a></li>
+<li><a href="#" class="text-gray-400 hover:text-white transition-colors">Sesje portretowe</a></li>
+<li><a href="#" class="text-gray-400 hover:text-white transition-colors">Sesje rodzinne</a></li>
+<li><a href="#" class="text-gray-400 hover:text-white transition-colors">Fotografia eventowa</a></li>
+<li><a href="#" class="text-gray-400 hover:text-white transition-colors">Fotografia produktowa</a></li>
+</ul>
+</div>
+<div>
+<h3 class="text-lg font-bold mb-4">Newsletter</h3>
+<p class="text-gray-400 mb-4">Zapisz się, aby otrzymywać informacje o promocjach i nowościach.</p>
+<form class="flex">
+<input type="email" placeholder="Twój email" class="px-4 py-2 rounded-l-button bg-gray-800 text-white border-none focus:outline-none focus:ring-2 focus:ring-primary w-full">
+<button type="submit" class="bg-primary hover:bg-gray-700 text-white px-4 py-2 rounded-r-button whitespace-nowrap">Zapisz się</button>
+</form>
+</div>
+</div>
+<div class="border-t border-gray-800 mt-12 pt-8 flex flex-col md:flex-row justify-between items-center">
+<p class="text-gray-400 text-sm mb-4 md:mb-0">&copy; 2025 Fotografia Artystyczna. Wszelkie prawa zastrzeżone.</p>
+<div class="flex space-x-6">
+<a href="#" class="text-gray-400 hover:text-white text-sm transition-colors">Polityka prywatności</a>
+<a href="#" class="text-gray-400 hover:text-white text-sm transition-colors">Warunki korzystania</a>
+<a href="#" class="text-gray-400 hover:text-white text-sm transition-colors">Mapa strony</a>
+</div>
+</div>
+</div>
+</footer>
+<!-- Navigation Script -->
+<script id="navigation-script">
+document.addEventListener('DOMContentLoaded', function() {
+const navbar = document.getElementById('navbar');
+const mobileMenuButton = document.getElementById('mobile-menu-button');
+const mobileMenu = document.getElementById('mobile-menu');
+// Navbar scroll effect
+window.addEventListener('scroll', function() {
+if (window.scrollY > 50) {
+navbar.classList.add('bg-black', 'bg-opacity-90', 'shadow-md');
+} else {
+navbar.classList.remove('bg-black', 'bg-opacity-90', 'shadow-md');
+}
+});
+// Mobile menu toggle
+mobileMenuButton.addEventListener('click', function() {
+mobileMenu.classList.toggle('hidden');
+});
+// Close mobile menu when clicking on a link
+const mobileLinks = mobileMenu.querySelectorAll('a');
+mobileLinks.forEach(link => {
+link.addEventListener('click', function() {
+mobileMenu.classList.add('hidden');
+});
+});
+// Smooth scrolling for navigation links
+document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+anchor.addEventListener('click', function(e) {
+e.preventDefault();
+const targetId = this.getAttribute('href');
+if (targetId === '#') return;
+const targetElement = document.querySelector(targetId);
+if (targetElement) {
+window.scrollTo({
+top: targetElement.offsetTop - 80,
+behavior: 'smooth'
+});
+}
+});
+});
+});
+</script>
+<!-- Portfolio Script -->
+<script id="portfolio-script">
+document.addEventListener('DOMContentLoaded', function() {
+// Portfolio filtering
+const filterButtons = document.querySelectorAll('.filter-btn');
+const portfolioItems = document.querySelectorAll('.portfolio-item');
+filterButtons.forEach(button => {
+button.addEventListener('click', function() {
+// Update active button
+filterButtons.forEach(btn => {
+btn.classList.remove('active', 'bg-primary', 'text-white');
+btn.classList.add('bg-gray-200', 'hover:bg-gray-300');
+});
+this.classList.add('active', 'bg-primary', 'text-white');
+this.classList.remove('bg-gray-200', 'hover:bg-gray-300');
+const filter = this.getAttribute('data-filter');
+portfolioItems.forEach(item => {
+if (filter === 'all' || item.getAttribute('data-category') === filter) {
+item.style.display = 'block';
+} else {
+item.style.display = 'none';
+}
+});
+});
+});
+// Load more button (simulation)
+const loadMoreBtn = document.getElementById('load-more');
+loadMoreBtn.addEventListener('click', function() {
+this.innerHTML = '<i class="ri-loader-4-line animate-spin mr-2"></i> Ładowanie...';
+// Simulate loading delay
+setTimeout(() => {
+this.innerHTML = 'Zobacz więcej';
+alert('Wszystkie zdjęcia zostały już załadowane.');
+}, 1500);
+});
+// Image modal
+const modal = document.getElementById('imageModal');
+const modalImg = document.getElementById('modalImage');
+const closeBtn = document.querySelector('.close');
+// Open modal when clicking on portfolio images
+const galleryImages = document.querySelectorAll('.portfolio-item img');
+galleryImages.forEach(img => {
+img.addEventListener('click', function() {
+modal.style.display = 'flex';
+modalImg.src = this.src;
+});
+});
+// Close modal
+closeBtn.addEventListener('click', function() {
+modal.style.display = 'none';
+});
+// Close modal when clicking outside the image
+modal.addEventListener('click', function(e) {
+if (e.target === modal) {
+modal.style.display = 'none';
+}
+});
+});
+</script>
+<!-- Testimonials Script -->
+<script id="testimonials-script">
+document.addEventListener('DOMContentLoaded', function() {
+const track = document.querySelector('.testimonial-track');
+const slides = document.querySelectorAll('.testimonial-slide');
+const prevBtn = document.querySelector('.testimonial-prev');
+const nextBtn = document.querySelector('.testimonial-next');
+const dots = document.querySelectorAll('.testimonial-dot');
+let currentIndex = 0;
+let slideWidth = slides[0].getBoundingClientRect().width;
+let slidesToShow = 1;
+// Determine slides to show based on screen width
+function updateSlidesToShow() {
+if (window.innerWidth >= 1024) {
+slidesToShow = 3;
+} else if (window.innerWidth >= 768) {
+slidesToShow = 2;
+} else {
+slidesToShow = 1;
+}
+// Update slide width
+slideWidth = slides[0].getBoundingClientRect().width;
+goToSlide(currentIndex);
+}
+// Initialize slider
+updateSlidesToShow();
+window.addEventListener('resize', updateSlidesToShow);
+// Go to specific slide
+function goToSlide(index) {
+if (index < 0) {
+index = 0;
+} else if (index > slides.length - slidesToShow) {
+index = slides.length - slidesToShow;
+}
+currentIndex = index;
+track.style.transform = `translateX(-${currentIndex * slideWidth}px)`;
+// Update dots
+dots.forEach((dot, i) => {
+dot.classList.toggle('bg-primary', i === currentIndex);
+dot.classList.toggle('bg-gray-300', i !== currentIndex);
+});
+}
+// Previous slide
+prevBtn.addEventListener('click', () => {
+goToSlide(currentIndex - 1);
+});
+// Next slide
+nextBtn.addEventListener('click', () => {
+goToSlide(currentIndex + 1);
+});
+// Dot navigation
+dots.forEach((dot, i) => {
+dot.addEventListener('click', () => {
+goToSlide(i);
+});
+});
+// Auto slide (optional)
+let autoSlideInterval = setInterval(() => {
+if (currentIndex < slides.length - slidesToShow) {
+goToSlide(currentIndex + 1);
+} else {
+goToSlide(0);
+}
+}, 5000);
+// Pause auto slide on hover
+const sliderContainer = document.querySelector('.testimonial-slider');
+sliderContainer.addEventListener('mouseenter', () => {
+clearInterval(autoSlideInterval);
+});
+sliderContainer.addEventListener('mouseleave', () => {
+autoSlideInterval = setInterval(() => {
+if (currentIndex < slides.length - slidesToShow) {
+goToSlide(currentIndex + 1);
+} else {
+goToSlide(0);
+}
+}, 5000);
+});
+});
+</script>
+<!-- Contact Form Script -->
+<script id="contact-form-script">
+document.addEventListener('DOMContentLoaded', function() {
+const contactForm = document.getElementById('contact-form');
+contactForm.addEventListener('submit', function(e) {
+e.preventDefault();
+// Simple form validation
+const name = document.getElementById('name').value;
+const email = document.getElementById('email').value;
+const message = document.getElementById('message').value;
+const privacy = document.getElementById('privacy').checked;
+if (!name || !email || !message || !privacy) {
+alert('Proszę wypełnić wszystkie wymagane pola formularza.');
+return;
+}
+// Email validation
+const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+if (!emailRegex.test(email)) {
+alert('Proszę podać prawidłowy adres email.');
+return;
+}
+// Simulate form submission
+const submitButton = contactForm.querySelector('button[type="submit"]');
+const originalText = submitButton.innerHTML;
+submitButton.disabled = true;
+submitButton.innerHTML = '<i class="ri-loader-4-line animate-spin mr-2"></i> Wysyłanie...';
+setTimeout(() => {
+alert('Dziękujemy za wiadomość! Odpowiemy najszybciej jak to możliwe.');
+contactForm.reset();
+submitButton.disabled = false;
+submitButton.innerHTML = originalText;
+}, 1500);
+});
+});
+</script>
+<!-- Cookie Notice Script -->
+<script id="cookie-notice-script">
+document.addEventListener('DOMContentLoaded', function() {
+const cookieNotice = document.getElementById('cookie-notice');
+const acceptCookiesBtn = document.getElementById('accept-cookies');
+const rejectCookiesBtn = document.getElementById('reject-cookies');
+// Check if user has already made a choice
+const cookieChoice = localStorage.getItem('cookieChoice');
+if (!cookieChoice) {
+// Show cookie notice after a short delay
+setTimeout(() => {
+cookieNotice.classList.remove('hidden');
+}, 1000);
+}
+// Accept cookies
+acceptCookiesBtn.addEventListener('click', function() {
+localStorage.setItem('cookieChoice', 'accepted');
+cookieNotice.classList.add('hidden');
+});
+// Reject cookies
+rejectCookiesBtn.addEventListener('click', function() {
+localStorage.setItem('cookieChoice', 'rejected');
+cookieNotice.classList.add('hidden');
+});
+});
+</script>
 </body>
-
 </html>
